@@ -69,9 +69,10 @@ for (var word in words) {
 jsdom.env(
 	"<html><body></body></html>", ['http://d3js.org/d3.v3.min.js'],
 	function(err, window) {
+
 		var svg = window.d3.select("body")
 			.append("svg")
-			.attr("width", svgDimensions.width).attr("height", svgDimensions.height);
+			.attr("width", "100%").attr("height", "100%")
 
 		for (var word in words) {
 			var textSize = Math.floor((words[word] * 100) / totalWords).toString();
@@ -85,7 +86,7 @@ jsdom.env(
 				.text(word)
 		}
 
-		fs.writeFileSync('out.html', "<html><body>" + window.d3.select("body").html() + "</body></html>");
+		fs.writeFileSync('out.html', window.d3.select("body").html() + "<script> window.d3.select('body').call(window.d3.behavior.zoom().on('zoom',function(){  var text = `scale(${window.d3.event.scale})` ;       window.d3.select('body').style('transform',text);  })).append('g')  </script>");
 
 		console.log('Generated out.html');
 
