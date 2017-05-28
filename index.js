@@ -2,17 +2,25 @@ var fs = require('fs');
 var jsdom = require("jsdom/lib/old-api.js");
 var alphabets = 'abcdefghijklmnopqrstuvwxyz';
 
+var svgDimensions = {
+	width: 1000,
+	height: 800
+}
+
+console.log('Searching for JS files ....');
+
 fs
 	.readdirSync(__dirname)
 	.filter(function(file) {
 		return (file.indexOf(".") !== 0) && (file !== "index.js") && (file.split(".")[1] === "js");
 	})
 	.forEach(function(file) {
-		
+
+		console.log('Found ' + file);
 		var fileContent = fs.readFileSync(file, {
 			encoding: 'utf-8'
 		});
-		console.log(fileContent)
+
 		var strippedContent = fileContent.replace(/\r?\n|\r|\t/g, '').toLowerCase();
 		var fillables = [];
 		var contentClone = strippedContent;
@@ -32,21 +40,32 @@ fs
 			}
 		}
 
+		var totalWords = 0;
+		for (var word in words) {
+			totalWords = totalWords + words[word];
+		};
+
 		jsdom.env(
 			"<html><body></body></html>", ['http://d3js.org/d3.v3.min.js'],
 			function(err, window) {
 				var svg = window.d3.select("body")
 					.append("svg")
-					.attr("width", 1000).attr("height", 1000);
+					.attr("width", svgDimensions.width).attr("height", svgDimensions.height);
 
 				for (var word in words) {
+					var textSize = Math.floor((words[word] * 100) / totalWords).toString();
 					svg.append("text")
-						.attr("x", Math.floor(Math.random() * 1000))
-						.attr("y", Math.floor(Math.random() * 1000))
+						.style("font-size", `${textSize*3}px`)
+						.attr("x", Math.floor(Math.random() * (svgDimensions.width - (svgDimensions.width - svgDimensions.height) * 2)))
+						.attr("y", Math.floor(Math.random() * (svgDimensions.height - (svgDimensions.width - svgDimensions.height) * 2)))
+						.attr("text-anchor", "begin")
+						.attr("transform", `translate(300,150) rotate(${textSize})`)
 						.text(word)
 				}
 
-				fs.writeFileSync('out.html', "<html><body>" + window.d3.select("body").html() + "</body></html>"); // or this
+				fs.writeFileSync('out.html', "<html><body>" + window.d3.select("body").html() + "</body></html>");
+
+				console.log('Generated out.html');
 
 			}
 		);
