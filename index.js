@@ -72,21 +72,33 @@ jsdom.env(
 
 		var svg = window.d3.select("body")
 			.append("svg")
-			.attr("width", "100%").attr("height", "100%")
+			.attr("width", "100%")
+			.attr("height", "100%")
+			.append("g")
+			.attr("transform", "translate(250,250)");
+
 
 		for (var word in words) {
 			var textSize = Math.floor((words[word] * 100) / totalWords).toString();
 			svg.append("text")
-				.style("font-size", `${textSize*3}px`)
+				.style("font-size", `${textSize*10}px`)
 				.style("margin", `17px`)
 				.attr("x", Math.floor(Math.random() * (svgDimensions.width - (200))))
 				.attr("y", Math.floor(Math.random() * (svgDimensions.height - (200))))
 				.attr("text-anchor", "begin")
 				.attr("transform", `translate(300,150) rotate(${textSize})`)
 				.text(word)
+
 		}
 
-		fs.writeFileSync('out.html', window.d3.select("body").html() + "<script> window.d3.select('body').call(window.d3.behavior.zoom().on('zoom',function(){  var text = `scale(${window.d3.event.scale})` ;       window.d3.select('body').style('transform',text);  })).append('g')  </script>");
+		fs.writeFileSync('out.html', window.d3.select("body").html() + "<script> \
+				window.d3.select('body')\
+					.call(window.d3.behavior.zoom()\
+					.on('zoom',function(){  \
+						var text = `scale(${window.d3.event.scale})` ;  \
+						window.d3.select('body').style('transform',text)  \
+					})).append('g') \
+		</script>");
 
 		console.log('Generated out.html');
 
