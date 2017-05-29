@@ -7,6 +7,25 @@ var svgDimensions = {
 	height: 800
 };
 
+function sortObj(obj){
+
+	var sortedArray = [];
+	var sortedobj = {};
+	for (var word in words) {
+	    sortedArray.push([word, words[word]]);
+	}
+
+	sortedArray.sort(function(a, b) {
+	    return a[1] - b[1];
+	});
+
+	sortedArray.forEach(function(sorted){
+		sortedobj[sorted[0]] = sorted[1];
+	});
+
+	return sortedobj;
+}
+
 var startingHex = '220';
 
 console.log('Searching for JS files ....');
@@ -66,7 +85,10 @@ for (var word in words) {
 	totalWords = totalWords + words[word];
 };
 
-console.log(words)
+
+words = sortObj(words);
+
+console.log(words);
 
 jsdom.env(
 	"<html><body></body></html>", ['http://d3js.org/d3.v3.min.js'],
