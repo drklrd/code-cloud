@@ -3,10 +3,21 @@ var jsdom = require("jsdom/lib/old-api.js");
 var alphabets = 'abcdefghijklmnopqrstuvwxyz';
 var recursive = require("recursive-readdir");
 
+try{
+	var config = require(__dirname+'/codecloud.config.js');
+}
+catch(e){
+	throw e;
+}
+
 var svgDimensions = {
 	width: 1500,
 	height: 800
 };
+var startingHex = '255';
+var words = {};
+var totalWords = 0;
+var ctstring = "";
 
 function sortObj(obj) {
 
@@ -15,31 +26,22 @@ function sortObj(obj) {
 	for (var word in words) {
 		sortedArray.push([word, words[word]]);
 	}
-
 	sortedArray.sort(function(a, b) {
 		return a[1] - b[1];
 	});
-
 	sortedArray.forEach(function(sorted) {
 		sortedobj[sorted[0]] = sorted[1];
 	});
-
 	return sortedobj;
 }
 
+console.log('Searching for  files ....');
 
-console.log('Searching for JS files ....');
-
-var words = {};
-var totalWords = 0;
-var ctstring = "";
-
-
-
-recursive("./", ['node_modules', '.git'], function(err, files) {
+recursive("./", config.exclude, function(err, files) {
 
 	var filesToRead = files.filter(function(file) {
-		return (file.indexOf(".") !== 0) && (file !== "index.js") && (file.split(".")[1] === "js");
+		return (config.tests).test(file)  && (file !== "codecloud.config.js") ;
+		// return (file.indexOf(".") !== 0) && (file !== "index.js") && (file.split(".")[1] === "js");
 	});
 
 	console.log(`Found ${filesToRead.length} files ....`)
@@ -47,7 +49,7 @@ recursive("./", ['node_modules', '.git'], function(err, files) {
 	filesToRead.forEach(function(file) {
 
 		console.log('=====> ' + file);
-		var fileContent = fs.readFileSync(__dirname + '/' + file, {
+		var fileContent = fs.readFileSync(config.inputDir + '/' + file, {
 			encoding: 'utf-8'
 		});
 
@@ -91,8 +93,7 @@ recursive("./", ['node_modules', '.git'], function(err, files) {
 	};
 
 	words = sortObj(words);
-	var startingHex = '255';
-	var colorChangeRate = Math.floor(Number(startingHex) / (Object.keys(words).length));
+	var colorChangeRate = Math.round(Number(startingHex) / (Object.keys(words).length));
 
 	jsdom.env(
 		"<html><body></body></html>", ['http://d3js.org/d3.v3.min.js'],
@@ -111,15 +112,13 @@ recursive("./", ['node_modules', '.git'], function(err, files) {
 				svg.append("text")
 					.style("font-size", `${textSize*10+10}px`)
 					.style('fill', `rgb(${startingHex-colorStep},${startingHex-colorStep},${startingHex-colorStep})`)
-					.attr("x", (Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * (svgDimensions.width) / 3))
-					.attr("y", (Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * (svgDimensions.height) / 3))
+					.attr("x", (Math.random() < 0.5 ? -1 : 1) * Math.round(Math.random() * (svgDimensions.width) / 3))
+					.attr("y", (Math.random() < 0.5 ? -1 : 1) * Math.round(Math.random() * (svgDimensions.height) / 3))
 					.attr("text-anchor", "begin")
 					.attr("transform", `translate(300,150) rotate(${textSize})`)
 					.text(word)
 
 				colorStep = colorStep + colorChangeRate;
-
-
 			}
 
 			fs.writeFileSync('out.html', window.d3.select("body").html() + "<script> \
@@ -129,7 +128,7 @@ recursive("./", ['node_modules', '.git'], function(err, files) {
   						var text = `scale(${window.d3.event.scale})` ;  \
   						window.d3.select('body').style('transform',text)  \
   					})).append('g') \
-  		</script>");
+  				</script>");
 
 			console.log('Generated out.html');
 			console.log('DONE !!!!!!!!!!!!!');
