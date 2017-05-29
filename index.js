@@ -26,7 +26,6 @@ function sortObj(obj){
 	return sortedobj;
 }
 
-var startingHex = '220';
 
 console.log('Searching for JS files ....');
 
@@ -90,14 +89,19 @@ words = sortObj(words);
 
 console.log(words);
 
+var startingHex = '255';
+var colorChangeRate = Math.floor(Number(startingHex)/(Object.keys(words).length));
+
 jsdom.env(
 	"<html><body></body></html>", ['http://d3js.org/d3.v3.min.js'],
 	function(err, window) {
 
 		var svg = window.d3.select("body")
 			.append("svg")
-			.attr("width", "90%")
-			.attr("height", "70%")
+			.style("position","absolute")
+			.style("left","20%")
+			.attr("width", "100%")
+			.attr("height", "100%")
 			.append("g")
 			.attr("transform", "translate(250,250)");
 
@@ -107,14 +111,16 @@ jsdom.env(
 			svg.append("text")
 				.style("font-size", `${textSize*10+10}px`)
 				.style('fill',`rgb(${startingHex-colorStep},${startingHex-colorStep},${startingHex-colorStep})`)
-				.style("margin", `17px`)
-				.attr("x", Math.floor(Math.random() * (svgDimensions.width - (200))/2))
-				.attr("y", Math.floor(Math.random() * (svgDimensions.height - (200))/2))
+				.attr("x", (Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * (svgDimensions.width)/3))
+				.attr("y", (Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * (svgDimensions.height)/3)	)
 				.attr("text-anchor", "begin")
 				.attr("transform", `translate(300,150) rotate(${textSize})`)
 				.text(word)
 
-			colorStep  = colorStep + 4;
+			if(Object.keys(words).length % colorStep !== colorChangeRate) {
+				colorStep  = colorStep + colorChangeRate;
+			}
+			
 
 		}
 
