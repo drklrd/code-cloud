@@ -5,7 +5,9 @@ var alphabets = 'abcdefghijklmnopqrstuvwxyz';
 var svgDimensions = {
 	width: 1500,
 	height: 800
-}
+};
+
+var startingHex = '220';
 
 console.log('Searching for JS files ....');
 
@@ -64,7 +66,7 @@ for (var word in words) {
 	totalWords = totalWords + words[word];
 };
 
-
+console.log(words)
 
 jsdom.env(
 	"<html><body></body></html>", ['http://d3js.org/d3.v3.min.js'],
@@ -72,22 +74,25 @@ jsdom.env(
 
 		var svg = window.d3.select("body")
 			.append("svg")
-			.attr("width", "100%")
-			.attr("height", "100%")
+			.attr("width", "90%")
+			.attr("height", "70%")
 			.append("g")
 			.attr("transform", "translate(250,250)");
 
-
+		var colorStep = 0;
 		for (var word in words) {
 			var textSize = Math.floor((words[word] * 100) / totalWords).toString();
 			svg.append("text")
-				.style("font-size", `${textSize*10}px`)
+				.style("font-size", `${textSize*10+10}px`)
+				.style('fill',`rgb(${startingHex-colorStep},${startingHex-colorStep},${startingHex-colorStep})`)
 				.style("margin", `17px`)
-				.attr("x", Math.floor(Math.random() * (svgDimensions.width - (200))))
-				.attr("y", Math.floor(Math.random() * (svgDimensions.height - (200))))
+				.attr("x", Math.floor(Math.random() * (svgDimensions.width - (200))/2))
+				.attr("y", Math.floor(Math.random() * (svgDimensions.height - (200))/2))
 				.attr("text-anchor", "begin")
 				.attr("transform", `translate(300,150) rotate(${textSize})`)
 				.text(word)
+
+			colorStep  = colorStep + 4;
 
 		}
 
