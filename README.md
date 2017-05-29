@@ -1,5 +1,7 @@
 # code-cloud
 
+![alt tag](https://raw.githubusercontent.com/drklrd/code-cloud/master/codecloud.png)
+
 An NPM package to generate Word Cloud from your code base. Work in progress.
 
 > If you are interested to try the development verion, clone the repo and add some JS files under 'tests' directory.
