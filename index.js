@@ -3,10 +3,9 @@ var jsdom = require("jsdom/lib/old-api.js");
 var alphabets = 'abcdefghijklmnopqrstuvwxyz';
 var recursive = require("recursive-readdir");
 
-try{
-	var config = require(__dirname+'/codecloud.config.js');
-}
-catch(e){
+try {
+	var config = require(__dirname + '/codecloud.config.js');
+} catch (e) {
 	throw e;
 }
 
@@ -40,7 +39,7 @@ console.log('Searching for  files ....');
 recursive("./", config.exclude, function(err, files) {
 
 	var filesToRead = files.filter(function(file) {
-		return (config.tests).test(file)  && (file !== "codecloud.config.js") ;
+		return (config.tests).test(file) && (file !== "codecloud.config.js");
 		// return (file.indexOf(".") !== 0) && (file !== "index.js") && (file.split(".")[1] === "js");
 	});
 
@@ -97,29 +96,6 @@ recursive("./", config.exclude, function(err, files) {
 
 	console.log(`Found ${Object.keys(words).length} different words`)
 
-		// jsdom.env(
-		// 	"<html><body></body></html>", ['./node_modules/d3/d3.min.js'],
-		// 	function(err, window) {
-
-		// 		var svg = window.d3.select("body")
-		// 			.append("svg")
-		// 			.attr("width", "500")
-		// 			.attr("height", "500")
-
-		// 		svg.append("text")
-		// 			.attr("x", "0")
-		// 			.attr("y", "500")
-		// 			.text("hello ther !")
-
-		// 		fs.writeFileSync('out.html', window.d3.select("body").html());
-
-		// 		console.log('Generated out.html');
-		// 		console.log('DONE !!!!!!!!!!!!!');
-		// 		process.exit();
-
-		// 	}
-		// );
-
 	jsdom.env(
 		"<html><body></body></html>", ['./node_modules/d3/d3.min.js'],
 		function(err, window) {
@@ -133,14 +109,13 @@ recursive("./", config.exclude, function(err, files) {
 			var wordStep = 0;
 			for (var word in words) {
 				var textSize = Math.floor((words[word] * 100) / totalWords).toString();
-				if(wordStep === (Object.keys(words).length-1) ){
-					var posX =  (svgDimensions.width/2);
-					var posY =  (svgDimensions.height/2);
-				}else{
-					var posX =  Math.round((Math.random() * svgDimensions.width) - 3);
-					var posY =  Math.round((Math.random() * svgDimensions.height) - 3);
+				if (wordStep === (Object.keys(words).length - 1)) {
+					var posX = (svgDimensions.width / 2);
+					var posY = (svgDimensions.height / 2);
+				} else {
+					var posX = Math.round((Math.random() * svgDimensions.width) - 30);
+					var posY = Math.round((Math.random() * svgDimensions.height) - 30);
 				}
-				
 				svg.append("text")
 					.style("font-size", `${textSize*10+10}px`)
 					.style('fill', `rgb(${startingHex-colorStep},${startingHex-colorStep},${startingHex-colorStep})`)
@@ -150,17 +125,27 @@ recursive("./", config.exclude, function(err, files) {
 					.attr("transform", `rotate(${textSize})`)
 					.text(word)
 
-				colorStep = colorStep + colorChangeRate;
+				if (wordStep % colorChangeRate === 0) {
+					colorStep = colorStep + colorChangeRate;
+				}
 				wordStep++;
 			}
-
 			fs.writeFileSync('out.html', window.d3.select("body").html() + "<script> \
   				window.d3.select('body')\
   					.call(window.d3.behavior.zoom()\
   					.on('zoom',function(){  \
   						var text = `scale(${window.d3.event.scale})` ;  \
   						window.d3.select('body').style('transform',text)  \
-  					})).append('g') \
+  					})).append('g'); \
+  				var factor=0;\
+  				var interval = setInterval(function(){\
+  					if(factor<=1){\
+  						window.d3.select('body').style('transform',`scale(${factor})`);\
+  						factor = factor + 0.1;\
+  					}else{\
+  						clearInterval(interval);\
+  					}\
+  				},35);\
   				</script>");
 
 			console.log('Generated out.html');
