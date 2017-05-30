@@ -11,8 +11,8 @@ catch(e){
 }
 
 var svgDimensions = {
-	width: 1500,
-	height: 800
+	width: "1000",
+	height: "1000"
 };
 var startingHex = '255';
 var words = {};
@@ -95,30 +95,63 @@ recursive("./", config.exclude, function(err, files) {
 	words = sortObj(words);
 	var colorChangeRate = Math.round(Number(startingHex) / (Object.keys(words).length));
 
+	console.log(`Found ${Object.keys(words).length} different words`)
+
+		// jsdom.env(
+		// 	"<html><body></body></html>", ['./node_modules/d3/d3.min.js'],
+		// 	function(err, window) {
+
+		// 		var svg = window.d3.select("body")
+		// 			.append("svg")
+		// 			.attr("width", "500")
+		// 			.attr("height", "500")
+
+		// 		svg.append("text")
+		// 			.attr("x", "0")
+		// 			.attr("y", "500")
+		// 			.text("hello ther !")
+
+		// 		fs.writeFileSync('out.html', window.d3.select("body").html());
+
+		// 		console.log('Generated out.html');
+		// 		console.log('DONE !!!!!!!!!!!!!');
+		// 		process.exit();
+
+		// 	}
+		// );
+
 	jsdom.env(
 		"<html><body></body></html>", ['./node_modules/d3/d3.min.js'],
 		function(err, window) {
 
 			var svg = window.d3.select("body")
 				.append("svg")
-				.attr("width", "100%")
-				.attr("height", "100%")
-				.append("g")
-				.attr("transform", "translate(250,250)");
+				.attr("width", `${svgDimensions.width}`)
+				.attr("height", `${svgDimensions.height}`)
 
 			var colorStep = 0;
+			var wordStep = 0;
 			for (var word in words) {
 				var textSize = Math.floor((words[word] * 100) / totalWords).toString();
+				if(wordStep === (Object.keys(words).length-1) ){
+					var posX =  (svgDimensions.width/2);
+					var posY =  (svgDimensions.height/2);
+				}else{
+					var posX =  Math.round((Math.random() * svgDimensions.width) - 3);
+					var posY =  Math.round((Math.random() * svgDimensions.height) - 3);
+				}
+				
 				svg.append("text")
 					.style("font-size", `${textSize*10+10}px`)
 					.style('fill', `rgb(${startingHex-colorStep},${startingHex-colorStep},${startingHex-colorStep})`)
-					.attr("x", (Math.random() < 0.5 ? -1 : 1) * Math.round(Math.random() * (svgDimensions.width) / 3))
-					.attr("y", (Math.random() < 0.5 ? -1 : 1) * Math.round(Math.random() * (svgDimensions.height) / 3))
+					.attr("x", posX)
+					.attr("y", posY)
 					.attr("text-anchor", "begin")
-					.attr("transform", `translate(300,150) rotate(${textSize})`)
+					.attr("transform", `rotate(${textSize})`)
 					.text(word)
 
 				colorStep = colorStep + colorChangeRate;
+				wordStep++;
 			}
 
 			fs.writeFileSync('out.html', window.d3.select("body").html() + "<script> \
