@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "jsdom": "^11.0.0",
-    "recursive-readdir" : "*"
+    "recursive-readdir" : "*",
+    "d3" : "*"
   }
 }

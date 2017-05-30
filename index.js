@@ -96,7 +96,7 @@ recursive("./", config.exclude, function(err, files) {
 	var colorChangeRate = Math.round(Number(startingHex) / (Object.keys(words).length));
 
 	jsdom.env(
-		"<html><body></body></html>", ['http://d3js.org/d3.v3.min.js'],
+		"<html><body></body></html>", ['./node_modules/d3/d3.min.js'],
 		function(err, window) {
 
 			var svg = window.d3.select("body")
