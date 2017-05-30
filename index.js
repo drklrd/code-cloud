@@ -15,7 +15,7 @@ var svgDimensions = {
 };
 var startingHex = '255';
 var words = {};
-var totalWords = 0;
+var totalWords =  0;
 var ctstring = "";
 
 function sortObj(obj) {
@@ -88,13 +88,16 @@ recursive("./", config.exclude, function(err, files) {
 	};
 
 	for (var word in words) {
-		totalWords = totalWords + words[word];
+		totalWords =  totalWords + words[word];
 	};
 
 	words = sortObj(words);
-	var colorChangeRate = Math.round(Number(startingHex) / (Object.keys(words).length));
+	var rate = Number(startingHex) / (Object.keys(words).length);
+	var colorChangeRate = rate <=0.5 ? 1 : Math.round(rate);
 
 	console.log(`Found ${Object.keys(words).length} different words`)
+
+	console.log('Creating DOMs. Please wait ....');
 
 	jsdom.env(
 		"<html><body></body></html>", ['./node_modules/d3/d3.min.js'],
@@ -108,7 +111,7 @@ recursive("./", config.exclude, function(err, files) {
 			var colorStep = 0;
 			var wordStep = 0;
 			for (var word in words) {
-				var textSize = Math.floor((words[word] * 100) / totalWords).toString();
+				var textSize = ((words[word]*100) / totalWords);
 				if (wordStep === (Object.keys(words).length - 1)) {
 					var posX = (svgDimensions.width / 2);
 					var posY = (svgDimensions.height / 2);
@@ -117,7 +120,7 @@ recursive("./", config.exclude, function(err, files) {
 					var posY = Math.round((Math.random() * svgDimensions.height) - 30);
 				}
 				svg.append("text")
-					.style("font-size", `${textSize*10+10}px`)
+					.style("font-size", `${textSize*10+5}px`)
 					.style('fill', `rgb(${startingHex-colorStep},${startingHex-colorStep},${startingHex-colorStep})`)
 					.attr("x", posX)
 					.attr("y", posY)
@@ -125,12 +128,14 @@ recursive("./", config.exclude, function(err, files) {
 					.attr("transform", `rotate(${textSize})`)
 					.text(word)
 
-				if (wordStep % colorChangeRate === 0) {
-					colorStep = colorStep + colorChangeRate;
-				}
+				colorStep = colorStep + colorChangeRate;
 				wordStep++;
-			}
-			fs.writeFileSync('out.html', window.d3.select("body").html() + "<script> \
+			};
+
+			var infoHTML = `<h1>Code-cloud generated from ${Object.keys(words).length} words </h1> `;
+			var statText = `<p>Most frequent word : ${Object.keys(words)[Object.keys(words).length-1]} <p> `;
+
+			fs.writeFileSync('out.html', infoHTML + statText+ window.d3.select("body").html() + "<script> \
   				window.d3.select('body')\
   					.call(window.d3.behavior.zoom()\
   					.on('zoom',function(){  \
@@ -145,7 +150,7 @@ recursive("./", config.exclude, function(err, files) {
   					}else{\
   						clearInterval(interval);\
   					}\
-  				},35);\
+  				},100);\
   				</script>");
 
 			console.log('Generated out.html');
