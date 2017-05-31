@@ -132,7 +132,7 @@ recursive("./", config.exclude, function(err, files) {
 				wordStep++;
 			};
 
-			var infoHTML = `<h1>Code-cloud generated from ${Object.keys(words).length} words </h1> `;
+			var infoHTML = `<h1>Code-cloud generated from ${Object.keys(words).length} words , ${filesToRead.length} files </h1> `;
 			var statText = `<p>Most frequent word : ${Object.keys(words)[Object.keys(words).length-1]} <p> `;
 
 			fs.writeFileSync('out.html', infoHTML + statText+ window.d3.select("body").html() + "<script> \
